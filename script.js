@@ -1,14 +1,16 @@
 // Load saved tree or create default
 let treeData = JSON.parse(localStorage.getItem("treeData")) || {
   name: "Root",
+  description: "",
   collapsed: false,
   children: []
 };
 
-// Save tree to browser
+// Save tree
 function saveTree() {
   localStorage.setItem("treeData", JSON.stringify(treeData));
 }
+
 
 // Render tree
 function renderTree() {
@@ -25,6 +27,19 @@ function renderTree() {
 }
 
 
+// Convert URLs into clickable links
+function makeLinksClickable(text) {
+
+  if (!text) return "";
+
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
+
+  return text.replace(urlPattern, url =>
+    `<a href="${url}" target="_blank">${url}</a>`
+  );
+}
+
+
 // Create node element
 function createNode(node, parent) {
 
@@ -33,7 +48,8 @@ function createNode(node, parent) {
   const nodeBox = document.createElement("div");
   nodeBox.className = "node";
 
-  // Collapse arrow
+
+  // Collapse toggle
   const toggle = document.createElement("span");
 
   if (node.children.length > 0) {
@@ -43,7 +59,9 @@ function createNode(node, parent) {
     toggle.style.cursor = "pointer";
 
     toggle.onclick = () => {
+
       node.collapsed = !node.collapsed;
+
       saveTree();
       renderTree();
     };
@@ -56,14 +74,15 @@ function createNode(node, parent) {
 
   nodeBox.appendChild(toggle);
 
-  // Node name
+
+  // Name
   const nameSpan = document.createElement("span");
   nameSpan.textContent = node.name;
 
   nodeBox.appendChild(nameSpan);
 
 
-  // MAKE CHILD BUTTON
+  // Make Child button
   const addBtn = document.createElement("button");
 
   addBtn.textContent = "Make Child";
@@ -76,6 +95,7 @@ function createNode(node, parent) {
 
     node.children.push({
       name: childName,
+      description: "",
       collapsed: false,
       children: []
     });
@@ -87,14 +107,14 @@ function createNode(node, parent) {
   nodeBox.appendChild(addBtn);
 
 
-  // RENAME BUTTON  <<< THIS WAS MISSING
+  // Rename button
   const renameBtn = document.createElement("button");
 
   renameBtn.textContent = "Rename";
 
   renameBtn.onclick = () => {
 
-    const newName = prompt("Enter new node name:", node.name);
+    const newName = prompt("Enter new name:", node.name);
 
     if (!newName) return;
 
@@ -107,7 +127,30 @@ function createNode(node, parent) {
   nodeBox.appendChild(renameBtn);
 
 
-  // DELETE BUTTON  <<< THIS WAS MISSING
+  // Description button (NEW FEATURE)
+  const descBtn = document.createElement("button");
+
+  descBtn.textContent = "Description";
+
+  descBtn.onclick = () => {
+
+    const newDesc = prompt(
+      "Enter description (include full URLs starting with https://):",
+      node.description || ""
+    );
+
+    if (newDesc === null) return;
+
+    node.description = newDesc;
+
+    saveTree();
+    renderTree();
+  };
+
+  nodeBox.appendChild(descBtn);
+
+
+  // Delete button
   if (parent !== null) {
 
     const deleteBtn = document.createElement("button");
@@ -116,15 +159,11 @@ function createNode(node, parent) {
 
     deleteBtn.onclick = () => {
 
-      if (!confirm("Delete this node?")) return;
+      if (!confirm("Delete node?")) return;
 
       const index = parent.children.indexOf(node);
 
-      if (index > -1) {
-
-        parent.children.splice(index, 1);
-
-      }
+      parent.children.splice(index, 1);
 
       saveTree();
       renderTree();
@@ -137,7 +176,22 @@ function createNode(node, parent) {
   li.appendChild(nodeBox);
 
 
-  // Render children
+  // Show description (NEW FEATURE)
+  if (node.description) {
+
+    const descDiv = document.createElement("div");
+
+    descDiv.style.marginLeft = "20px";
+    descDiv.style.fontSize = "0.9em";
+    descDiv.style.color = "#333";
+
+    descDiv.innerHTML = makeLinksClickable(node.description);
+
+    li.appendChild(descDiv);
+  }
+
+
+  // Children
   if (!node.collapsed && node.children.length > 0) {
 
     const ul = document.createElement("ul");
@@ -195,5 +249,5 @@ function importTree(event) {
 }
 
 
-// Initial render
+// Start
 renderTree();
