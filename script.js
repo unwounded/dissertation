@@ -1,4 +1,4 @@
-// Load saved tree or create default
+// Load saved tree or create a default tree
 let treeData = JSON.parse(localStorage.getItem("treeData")) || {
   name: "Root",
   description: "",
@@ -6,13 +6,13 @@ let treeData = JSON.parse(localStorage.getItem("treeData")) || {
   children: []
 };
 
-// Save tree
+// Save tree function
 function saveTree() {
   localStorage.setItem("treeData", JSON.stringify(treeData));
 }
 
 
-// Render tree
+// Render tree function
 function renderTree() {
 
   const container = document.getElementById("tree");
@@ -27,7 +27,7 @@ function renderTree() {
 }
 
 
-// Convert URLs into clickable links
+// URL function
 function makeLinksClickable(text) {
 
   if (!text) return "";
@@ -40,7 +40,7 @@ function makeLinksClickable(text) {
 }
 
 
-// Create node element
+// Create new child
 function createNode(node, parent) {
 
   const li = document.createElement("li");
@@ -49,7 +49,7 @@ function createNode(node, parent) {
   nodeBox.className = "node";
 
 
-  // Collapse toggle
+  // Collapse Child function
   const toggle = document.createElement("span");
 
   if (node.children.length > 0) {
@@ -75,14 +75,14 @@ function createNode(node, parent) {
   nodeBox.appendChild(toggle);
 
 
-  // Name
+  // Name of child
   const nameSpan = document.createElement("span");
   nameSpan.textContent = node.name;
 
   nodeBox.appendChild(nameSpan);
 
 
-  // Make Child button
+  // The button MakeChild construction
   const addBtn = document.createElement("button");
 
   addBtn.textContent = "Make Child";
